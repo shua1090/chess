@@ -15,6 +15,7 @@
 
 package chess;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Game {
@@ -110,22 +111,39 @@ public class Game {
                         e.printStackTrace();
                     }
                     break;
-//                case "stat":
-//                    System.out.print("  White  ");
-//                    System.out.print("|");
-//                    System.out.print("  Black  ");
-//
-//                    final ArrayList<String> whitePieces = theStack.takenPieces(Color.White);
-//                    final ArrayList<String> blackPieces = theStack.takenPieces(Color.Black);
-//
-//                    int vals = Math.max(whitePieces.size(), blackPieces.size());
-//
-//                    for (int i = 0; i < vals; i++){
-//
-//                    }
-//
-//
-////                    theStack.takenPieces()
+                case "stat":
+                    System.out.print("  White  ");
+                    System.out.print("|");
+                    System.out.print("  Black  \n");
+                    System.out.println("---------|---------");
+
+                    final ArrayList<String> whitePieces = theStack.takenPieces(Color.White);
+                    final ArrayList<String> blackPieces = theStack.takenPieces(Color.Black);
+
+                    int vals = Math.min(whitePieces.size(), blackPieces.size());
+
+                    for (int i = 0; i < vals; i++) {
+                        System.out.print(whitePieces.get(i) + " ".repeat(9 - whitePieces.get(i).length()));
+                        System.out.print("|");
+                        System.out.print(" ".repeat(9 - blackPieces.get(i).length()) + blackPieces.get(i));
+                        System.out.print("\n");
+                    }
+
+                    if (whitePieces.size() > blackPieces.size()) {
+                        for (int i = vals; i < whitePieces.size(); i++) {
+                            System.out.print(whitePieces.get(i) + " ".repeat(9 - whitePieces.get(i).length()));
+                            System.out.print("|\n");
+                        }
+                    }
+
+                    if (blackPieces.size() > whitePieces.size()) {
+                        for (int i = vals; i < blackPieces.size(); i++) {
+                            System.out.print(" ".repeat(9 - blackPieces.get(i).length()) + blackPieces.get(i));
+                            System.out.print("|\n");
+                        }
+                    }
+
+
                 default:
                     if (input.length() == 0) {
                         break;

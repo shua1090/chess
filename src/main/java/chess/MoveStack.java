@@ -41,10 +41,15 @@ public class MoveStack extends Stack<Move> {
 
     public ArrayList<String> takenPieces(Color takenColor) {
         ArrayList<String> theTakenPieces = new ArrayList<>();
-        Move[] theMoves = (Move[]) this.toArray();
+        Move[] theMoves = new Move[this.size()];
+
+        for (int i = 0; i < this.size(); i++) {
+            theMoves[i] = this.get(i);
+        }
+
         for (Move i : theMoves) {
             if (i.takenPiece != null && i.takenPiece.getColor() == takenColor) {
-                theTakenPieces.add(i.getClass().getSimpleName());
+                theTakenPieces.add(i.takenPiece.getClass().getSimpleName());
             }
         }
         return theTakenPieces;
