@@ -1,6 +1,6 @@
 package chess;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Objects;
 
 import static chess.MoveCode.*;
@@ -16,9 +16,6 @@ enum MoveCode {
     EnemyPieceAtPosition,
     Valid,
     OutOfBounds
-}
-
-class OutOfBoardException extends IndexOutOfBoundsException {
 }
 
 class Position {
@@ -70,7 +67,7 @@ class Position {
 public abstract class Piece {
 
     protected final Color color;
-    protected ArrayList<Position> availableMoves = new ArrayList<>();
+    protected HashSet<Position> availableMoves = new HashSet<>();
     protected Position currentPosition;
     protected String pieceIdentification = null;
 
@@ -90,7 +87,8 @@ public abstract class Piece {
     // GETTERS
     protected abstract void getMoves(ChessBoard theChessBoard);
 
-    public ArrayList<Position> getAvailableMoves() {
+    public HashSet<Position> getAvailableMoves(ChessBoard theBoard) {
+        getMoves(theBoard);
         return availableMoves;
     }
 
@@ -128,6 +126,10 @@ public abstract class Piece {
         return null;
     }
 
+    @Override
+    public String toString() {
+        return color + " " + this.getClass().getSimpleName() + " at position " + Game.indexToChessPosition(this.currentPosition);
+    }
 }
 
 class OutOfBoundsPiece extends Piece {
@@ -183,7 +185,7 @@ class Knight extends Piece {
 
     Knight(Color theColor, Position thePosition) {
         super(theColor, thePosition);
-        pieceIdentification += "K";
+        pieceIdentification += "N";
 //        pieceIdentification = (theColor == Color.Black) ? outputHelpers.BLACK : outputHelpers.WHITE + "K";
 //        pieceIdentification = (theColor == Color.Black) ? "♞" : "♘";
         //pieceIdentification = theColor.toString().charAt(0) + "K";
@@ -297,11 +299,13 @@ class King extends Piece {
 
     King(Color theColor, Position thePosition) {
         super(theColor, thePosition);
-        pieceIdentification += "W";        // pieceIdentification = theColor.toString().charAt(0) + "W";
+        pieceIdentification += "K";        // pieceIdentification = theColor.toString().charAt(0) + "W";
     }
 
     @Override
     protected void getMoves(ChessBoard theChessBoard) {
+
+        availableMoves.clear();
         // DIAGONAL
         for (int z : new int[]{-1, 1}) {
             for (int k : new int[]{-1, 1}) {
@@ -335,13 +339,52 @@ class Pawn extends Piece {
 
     @Override
     protected void getMoves(ChessBoard theChessBoard) {
+
+        availableMoves.clear();
+
+        int modifier = 1;
+
+        // INITIAL MOVES
         if (this.color == Color.Black) {
-            addMove(new Position(currentPosition.row + 1, currentPosition.column), theChessBoard.get(currentPosition.row + 1, currentPosition.column));
+            // Starting
+            if (currentPosition.equals(new Position(1, currentPosition.column))) {
+                if (theChessBoard.get(2, currentPosition.column) == null) {
+                    availableMoves.add(new Position(2, currentPosition.column));
+                    if (theChessBoard.get(3, currentPosition.column) == null) {
+                        availableMoves.add(new Position(3, currentPosition.column));
+                    }
+                }
+            }
         }
         if (this.color == Color.White) {
-            addMove(new Position(currentPosition.row - 1, currentPosition.column), theChessBoard.get(currentPosition.row - 1, currentPosition.column));
+            modifier = -1;
+            if (currentPosition.equals(new Position(6, currentPosition.column))) {
+                if (theChessBoard.get(5, currentPosition.column) == null) {
+                    availableMoves.add(new Position(5, currentPosition.column));
+                    if (theChessBoard.get(4, currentPosition.column) == null) {
+                        availableMoves.add(new Position(4, currentPosition.column));
+                    }
+                }
+            }
         }
+
+        // GENERIC MOVES
+        if (theChessBoard.get(currentPosition.row + modifier, currentPosition.column) == null) {
+            availableMoves.add(new Position(currentPosition.row + modifier, currentPosition.column));
+        }
+
+        if (theChessBoard.get(currentPosition.row + modifier, currentPosition.column + modifier) != null ||
+                theChessBoard.get(currentPosition.row + modifier, currentPosition.column + modifier) instanceof OutOfBoundsPiece) {
+            availableMoves.add(new Position(currentPosition.row + modifier, currentPosition.column + modifier));
+        }
+
+        if (theChessBoard.get(currentPosition.row + modifier, currentPosition.column - modifier) != null ||
+                theChessBoard.get(currentPosition.row + modifier, currentPosition.column - modifier) instanceof OutOfBoundsPiece) {
+            availableMoves.add(new Position(currentPosition.row + modifier, currentPosition.column - modifier));
+        }
+
     }
+
 }
 
 

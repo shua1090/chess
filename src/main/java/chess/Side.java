@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 
 public interface Side {
@@ -31,10 +32,35 @@ public interface Side {
         col = 4;
 
         theBoard.move(new King(this.getColor(), new Position(row, col)), row, col);
-
     }
 
     Color getColor();
+
+    default ArrayList<Piece> findPiece(Piece searchPiece, ChessBoard theBoard) {
+
+        ArrayList<Piece> piecesOfType = new ArrayList<>();
+
+        for (Piece[] row : theBoard.theBoard) {
+            for (Piece col : row) {
+                if (col != null && col.getClass() == searchPiece.getClass() && col.getColor() == this.getColor()) {
+                    piecesOfType.add(col);
+                }
+
+            }
+        }
+
+
+        return piecesOfType;
+    }
+
+//    default ArrayList<Piece> findPieceFromString(String piece, ChessBoard theBoard){
+//        switch (piece){
+//            case "Bishop":
+//                findPiece(new Bishop(null, null), theBoard);
+//                break;
+//            case ""
+//        }
+//    }
 
     default HashSet<Position> getAllValidMoves(ChessBoard theBoard) {
         HashSet<Position> validMoveSet = new HashSet<>();
@@ -43,7 +69,7 @@ public interface Side {
             for (Piece col : row) {
                 if (col != null && col.getColor() == this.getColor()) {
                     col.getMoves(theBoard);
-                    validMoveSet.addAll(col.getAvailableMoves());
+                    validMoveSet.addAll(col.getAvailableMoves(theBoard));
                 }
 
             }

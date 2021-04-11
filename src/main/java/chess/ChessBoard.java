@@ -64,13 +64,17 @@ public class ChessBoard {
         b.printBoard();
     }
 
-    private Piece check(int row, int column) {
+    private Piece checkPieceValidity(int row, int column) {
         if (row > 7 || column > 7 || row < 0 || column < 0) return new OutOfBoundsPiece(null, null);
         return null;
     }
 
+    private Piece checkPieceValidity(Position pos) {
+        return checkPieceValidity(pos.row, pos.column);
+    }
+
     public Piece get(int row, int column) {
-        if (check(row, column) instanceof OutOfBoundsPiece) return new OutOfBoundsPiece(null, null);
+        if (checkPieceValidity(row, column) instanceof OutOfBoundsPiece) return new OutOfBoundsPiece(null, null);
         else return theBoard[row][column];
     }
 
@@ -78,8 +82,14 @@ public class ChessBoard {
         return this.get(p.getRow(), p.getColumn());
     }
 
+    public void forceSet(Piece replacement, Position thePosition) {
+        theBoard[thePosition.row][thePosition.column] = replacement;
+        if (replacement != null)
+            replacement.setPosition(thePosition.row, thePosition.column);
+    }
+
     public Piece move(Piece replacement, int newRow, int newColumn) {
-        if (check(newRow, newColumn) instanceof OutOfBoundsPiece)
+        if (checkPieceValidity(newRow, newColumn) instanceof OutOfBoundsPiece)
             return new OutOfBoundsPiece(null, null);
         else {
             theBoard[replacement.getCurrentPosition().row][replacement.getCurrentPosition().column] = null;
@@ -92,14 +102,7 @@ public class ChessBoard {
     }
 
     public void printBoard() {
-        System.out.print("  ");
-        System.out.print("|");
-        for (int i = 'a'; i < 'i'; i++) {
-            System.out.print(" " + (char) i + " |");
-        }
-        System.out.print("\n");
-
-        System.out.print("—".repeat(35) + "\n");
+        printTitle();
 
         for (int row = 1; row < 9; row++) {
             System.out.print(row + " |");
@@ -134,16 +137,19 @@ public class ChessBoard {
         }
     }
 
-    public void printAvailableMoves(HashSet<Position> moves) {
+    private void printTitle() {
         System.out.print("  ");
         System.out.print("|");
-
         for (int i = 'a'; i < 'i'; i++) {
             System.out.print(" " + (char) i + " |");
         }
         System.out.print("\n");
 
         System.out.print("—".repeat(35) + "\n");
+    }
+
+    public void printAvailableMoves(HashSet<Position> moves) {
+        printTitle();
 
         for (int row = 1; row < 9; row++) {
             System.out.print(row + " |");

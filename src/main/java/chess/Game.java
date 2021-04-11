@@ -7,6 +7,7 @@ public class Game {
     ChessBoard theBoard;
     WhiteSide whiteSide;
     BlackSide blackSide;
+    MoveStack theStack;
 
     Game() {
         theBoard = new ChessBoard();
@@ -15,6 +16,9 @@ public class Game {
 
         whiteSide.setBoard(theBoard);
         blackSide.setBoard(theBoard);
+
+        theStack = new MoveStack(theBoard);
+
     }
 
     public static void main(String[] args) {
@@ -22,12 +26,30 @@ public class Game {
         g.listen();
     }
 
-    Position chessPositionToIndex(char row, char column) {
+    static Position chessPositionToIndex(char row, char column) {
         int theRow = row - '1';
         int theColumn = column - 'a';
 
         return new Position(theRow, theColumn);
 
+    }
+
+    static String indexToChessPosition(Position p) {
+        char theRow = (char) (p.row + '1');
+        char theColumn = (char) (p.column + 'a');
+
+        return String.valueOf(theColumn) + theRow;
+    }
+
+    boolean isItCheck(Color oppositeTeamColor) {
+        if (oppositeTeamColor == Color.Black) {
+            var z = blackSide.getAllValidMoves(theBoard);
+            return z.contains(whiteSide.findPiece(new King(null, null), theBoard).get(0).currentPosition);
+        } else if (oppositeTeamColor == Color.White) {
+            var z = whiteSide.getAllValidMoves(theBoard);
+            return z.contains(blackSide.findPiece(new King(null, null), theBoard).get(0).currentPosition);
+        }
+        throw new IllegalArgumentException();
     }
 
     void listen() {
@@ -46,6 +68,8 @@ public class Game {
             String input = sc.nextLine();
 
             switch (input) {
+                case "\n":
+                    break;
                 case "exit":
                     code = 1;
                     break;
@@ -62,21 +86,69 @@ public class Game {
                         theBoard.printAvailableMoves(blackSide.getAllValidMoves(theBoard));
                     }
                     break;
+                case "undo":
+                    try {
+                        theStack.applyUndo();
+                    } catch (GameOutOfMoves e) {
+                        System.out.println("Nothing to undo.");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    break;
+//                case "stat":
+//                    System.out.print("  White  ");
+//                    System.out.print("|");
+//                    System.out.print("  Black  ");
+//
+//                    final ArrayList<String> whitePieces = theStack.takenPieces(Color.White);
+//                    final ArrayList<String> blackPieces = theStack.takenPieces(Color.Black);
+//
+//                    int vals = Math.max(whitePieces.size(), blackPieces.size());
+//
+//                    for (int i = 0; i < vals; i++){
+//
+//                    }
+//
+//
+////                    theStack.takenPieces()
                 default:
-                    if ((input.charAt(0) >= 'a' && input.charAt(0) <= 'h' && (input.charAt(1) >= '1' && input.charAt(1) <= '8')) && input.substring(3, 5).contains("to") && (input.charAt(6) >= 'a' && input.charAt(6) <= 'h' && (input.charAt(7) >= '1' && input.charAt(7) <= '8'))) {
-                        System.out.println("Valid input");
+                    if (input.length() == 0) {
+                        break;
+                    }
 
-                        Position oldPosition = this.chessPositionToIndex(input.charAt(1), input.charAt(0));
-                        Position newPosition = this.chessPositionToIndex(input.charAt(7), input.charAt(6));
+                    boolean b = input.charAt(0) >= 'a' && input.charAt(0) <= 'h' && (input.charAt(1) >= '1' && input.charAt(1) <= '8');
+
+                    if (input.length() == 2 && b) {
+                        Position thePosition = chessPositionToIndex(input.charAt(1), input.charAt(0));
+                        System.out.println(theBoard.get(thePosition));
+                    } else if (input.length() == 8 && b && input.substring(3, 5).contains("to") && (input.charAt(6) >= 'a' && input.charAt(6) <= 'h' && (input.charAt(7) >= '1' && input.charAt(7) <= '8'))) {
+//                        System.out.println("Valid input");
+
+                        Position oldPosition = chessPositionToIndex(input.charAt(1), input.charAt(0));
+                        Position newPosition = chessPositionToIndex(input.charAt(7), input.charAt(6));
 
                         if (theBoard.get(oldPosition) == null) {
                             System.out.println("You can't move something at that position, because there's nothing there!");
                         } else if (theBoard.get(oldPosition).getColor() != currentColor) {
                             System.out.println("You can't move a piece that's not your current color.");
                         } else {
+
+                            if (!theBoard.get(oldPosition).getAvailableMoves(theBoard).contains(newPosition)) {
+                                System.out.println("You can't move that piece there. These are your valid moves with that piece:");
+                                theBoard.printAvailableMoves(theBoard.get(oldPosition).getAvailableMoves(theBoard));
+                                break;
+                            }
+
+                            theStack.add(new Move(oldPosition, newPosition, theBoard.get(oldPosition), theBoard.get(newPosition)));
+
                             theBoard.move(theBoard.get(oldPosition), newPosition.row, newPosition.column);
                             currentColor = (currentColor == Color.White) ? Color.Black : Color.White;
                             theBoard.printBoard();
+
+                            System.out.println("Check: " + isItCheck(
+                                    (currentColor == Color.Black) ? Color.White : Color.Black)
+                            );
+
                         }
 
                     } else {
