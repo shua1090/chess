@@ -48,11 +48,7 @@ public class ChessBoard {
     Piece[][] theBoard = new Piece[8][8];
 
     ChessBoard() {
-        for (int row = 0; row < 8; row++) {
-            for (int col = 0; col < 8; col++) {
-                theBoard[row][col] = null;
-            }
-        }
+        Arrays.fill(theBoard, null);
     }
 
     private static void checkeredPattern(int row, int col) {
