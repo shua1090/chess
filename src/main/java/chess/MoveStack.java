@@ -35,7 +35,6 @@ public class MoveStack extends Stack<Move> {
 
     @Override
     public synchronized boolean add(Move move) {
-        System.out.println("Added");
         return super.add(move);
     }
 
@@ -56,16 +55,14 @@ public class MoveStack extends Stack<Move> {
     }
 
     public void applyUndo() {
-        System.out.println(this.size());
+//        System.out.println(this.size());
         if (this.size() == 0) throw new GameOutOfMoves();
         else {
             Move theMove = this.pop();
             theBoard.forceSet(theMove.movedPiece, theMove.start);
             theBoard.forceSet(theMove.takenPiece, theMove.end);
-
         }
     }
-
 }
 
 class Move {

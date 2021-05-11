@@ -98,6 +98,7 @@ public class ChessBoard {
     }
 
     public void forceSet(Piece replacement, Position thePosition) {
+//        System.out.println("Forceset: " + thePosition + " " + replacement);
         theBoard[thePosition.row][thePosition.column] = replacement;
         if (replacement != null)
             replacement.setPosition(thePosition.row, thePosition.column);
@@ -119,7 +120,7 @@ public class ChessBoard {
     public void printBoard() {
         printTitle();
 
-        for (int row = 1; row < 9; row++) {
+        for (int row = 8; row >= 1; row--) {
             System.out.print(row + " |");
             for (int col = 0; col < 8; col++) {
                 Piece pieceToBePrinted = this.get(row - 1, col);

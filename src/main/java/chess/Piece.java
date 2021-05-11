@@ -143,6 +143,7 @@ public abstract class Piece {
 
     @Override
     public String toString() {
+//        System.out.println("I am " + this.getClass().getSimpleName() + " at: " + this.getCurrentPosition());
         return color + " " + this.getClass().getSimpleName() + " at position " + Game.indexToChessPosition(this.currentPosition);
     }
 }
@@ -339,6 +340,8 @@ class King extends Piece {
             pieceAtThisPosition = theChessBoard.get(currentPosition.row + i * multiplier, currentPosition.column);
             addMove(new Position(currentPosition.row + i * multiplier, currentPosition.column), pieceAtThisPosition);
         }
+
+
     }
 
 }
@@ -388,13 +391,13 @@ class Pawn extends Piece {
             availableMoves.add(new Position(currentPosition.row + modifier, currentPosition.column));
         }
 
-        if (theChessBoard.get(currentPosition.row + modifier, currentPosition.column + modifier) != null ||
-                theChessBoard.get(currentPosition.row + modifier, currentPosition.column + modifier) instanceof OutOfBoundsPiece) {
+        if (theChessBoard.get(currentPosition.row + modifier, currentPosition.column + modifier) != null &&
+                !(theChessBoard.get(currentPosition.row + modifier, currentPosition.column + modifier) instanceof OutOfBoundsPiece)) {
             availableMoves.add(new Position(currentPosition.row + modifier, currentPosition.column + modifier));
         }
 
-        if (theChessBoard.get(currentPosition.row + modifier, currentPosition.column - modifier) != null ||
-                theChessBoard.get(currentPosition.row + modifier, currentPosition.column - modifier) instanceof OutOfBoundsPiece) {
+        if (theChessBoard.get(currentPosition.row + modifier, currentPosition.column - modifier) != null &&
+                !(theChessBoard.get(currentPosition.row + modifier, currentPosition.column - modifier) instanceof OutOfBoundsPiece)) {
             availableMoves.add(new Position(currentPosition.row + modifier, currentPosition.column - modifier));
         }
 
